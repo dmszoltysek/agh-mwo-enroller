@@ -7,13 +7,15 @@ import java.util.Set;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "meeting")
 public class Meeting {
 
 	@Id
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO, generator="seq")
+	@GenericGenerator(name = "seq", strategy="increment")
 	private long id;
 
 	@Column

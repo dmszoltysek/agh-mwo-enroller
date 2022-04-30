@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import com.company.enroller.model.Meeting;
 
+
 @Component("meetingService")
 public class MeetingService {
-
 	DatabaseConnector connector;
 
 	public MeetingService() {
@@ -29,24 +29,38 @@ public class MeetingService {
 	}
 
 	public void createMeeting(Meeting meeting){
+		System.out.println (meeting.getId ());
+		System.out.println (meeting.getTitle());
 		Transaction transaction = connector.getSession().beginTransaction();
 		connector.getSession().save(meeting);
 		transaction.commit();
 	}
 
-	public void addParticipant(long meetingId, String login){
-		String hql = "FROM Meeting where id =: meetingId";
-		org.hibernate.query.Query<Meeting> query = connector.getSession().createQuery(hql, Meeting.class);
-		query.setParameter("meetingId", meetingId);
-		Meeting meeting = query.uniqueResult ();
-		String hql1 = "FROM Participant where login =: login";
-		org.hibernate.query.Query<Participant> query1 = connector.getSession().createQuery(hql1, Participant.class);
-		query1.setParameter("login", login);
-		Participant participant = query1.uniqueResult ();
-		meeting.addParticipant (participant);
+	public void deleteMeeting(Meeting meeting){
 		Transaction transaction = connector.getSession().beginTransaction();
+		connector.getSession().delete(meeting);
+		transaction.commit();
+	}
+
+	public void addParticipant(Meeting meeting, Participant participant){
+		Transaction transaction = connector.getSession().beginTransaction();
+		meeting.addParticipant (participant);
 		connector.getSession().save(meeting);
 		transaction.commit();
 	}
+
+	public void deleteParticipant(Meeting meeting, Participant participant){
+		Transaction transaction = connector.getSession().beginTransaction();
+		meeting.removeParticipant (participant);
+		connector.getSession().save(meeting);
+		transaction.commit();
+	}
+
+	public void update(Meeting meeting){
+		Transaction transaction = connector.getSession().beginTransaction();
+		connector.getSession().merge(meeting);
+		transaction.commit();
+	}
+
 
 }
