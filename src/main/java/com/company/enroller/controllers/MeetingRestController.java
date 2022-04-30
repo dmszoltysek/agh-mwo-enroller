@@ -4,12 +4,14 @@ import com.company.enroller.model.Meeting;
 import com.company.enroller.model.Participant;
 import com.company.enroller.persistence.MeetingService;
 import com.company.enroller.persistence.ParticipantService;
+import org.ibex.nestedvm.util.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/meetings")
@@ -45,7 +47,7 @@ public class MeetingRestController {
     public ResponseEntity<?> addParticipant(@RequestParam long meetingId, @RequestParam String login) {
         Meeting foundMeeting = meetingService.findById (meetingId);
         Participant foundParticipant = participantService.findByLogin (login);
-        if (foundMeeting == null) {
+        if (foundMeeting == null || foundParticipant == null) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
         meetingService.addParticipant (foundMeeting, foundParticipant);
@@ -56,6 +58,9 @@ public class MeetingRestController {
     public ResponseEntity<?> deleteParticipant(@RequestParam long meetingId, @RequestParam String login) {
         Meeting foundMeeting = meetingService.findById (meetingId);
         Participant foundParticipant = participantService.findByLogin(login);
+        if (foundMeeting == null || foundParticipant == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
         meetingService.deleteParticipant (foundMeeting, foundParticipant);
         return new ResponseEntity<Collection<Participant>> (foundMeeting.getParticipants (), HttpStatus.OK);
     }
@@ -63,6 +68,9 @@ public class MeetingRestController {
     @RequestMapping(value = "/{id}/participants", method = RequestMethod.GET)
     public ResponseEntity<?> getParticipants(@PathVariable("id") long meetingId) {
         Meeting meeting = meetingService.findById(meetingId);
+        if (meeting == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<Collection<Participant>> (meeting.getParticipants (), HttpStatus.OK);
     }
 
@@ -87,6 +95,12 @@ public class MeetingRestController {
         foundMeeting.setDate(meeting.getDate());
         meetingService.update(foundMeeting);
         return new ResponseEntity<Meeting> (foundMeeting, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "sort_by=title", method = RequestMethod.GET)
+    public ResponseEntity<?> getAllSortedByTitle() {
+        Collection<Meeting> meetings = meetingService.getAllSortedByTitle();
+        return new ResponseEntity<Collection<Meeting>>(meetings, HttpStatus.OK);
     }
 
 }

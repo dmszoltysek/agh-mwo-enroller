@@ -23,6 +23,11 @@ public class MeetingService {
 		Query query = connector.getSession().createQuery(hql);
 		return query.list();
 	}
+	public Collection<Meeting> getAllSortedByTitle() {
+		String hql = "FROM Meeting ORDER BY title ASC";
+		Query query = connector.getSession().createQuery(hql);
+		return query.list();
+	}
 
 	public Meeting findById(long Id){
 		return (Meeting) connector.getSession().get(Meeting.class, Id);
